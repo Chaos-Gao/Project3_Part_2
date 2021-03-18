@@ -371,7 +371,8 @@ summary {
 
 <div id="my_rf_cv-analysis" class="section level2">
 <h2>my_rf_cv Analysis</h2>
-<pre class="r"><code>library(tidyverse)</code></pre>
+<pre class="r"><code># Load the package for Analysis
+library(tidyverse)</code></pre>
 <pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
 <pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.3
 ## ✓ tibble  3.0.0     ✓ dplyr   1.0.4
@@ -391,18 +392,25 @@ summary {
 <pre><code>## The following object is masked from 'package:ggplot2':
 ## 
 ##     margin</code></pre>
-<pre class="r"><code>source(&quot;../Code/my_rf_cv.R&quot;)
+<pre class="r"><code># Source the my_rf_cv code from the code folder
+source(&quot;../Code/my_rf_cv.R&quot;)
+# Load the my_penguins data from the data 
 my_penguins &lt;- read.csv(&quot;../Data/my_penguins.csv&quot;)</code></pre>
 <pre class="r"><code>fold_vec &lt;- c(2, 5, 8)
 cv_err_mat &lt;- matrix(nrow = 30, ncol = length(fold_vec))
+# Do the CV test with k = 2, 5, 8, and for each k, run 30 times
 for (i in 1:length(fold_vec)) {
   for (j in 1:30) {
+    # Store the MSE to the matrix
     cv_err_mat[j, i] &lt;- my_rf_cv(fold_vec[i])
   }
 }</code></pre>
-<pre class="r"><code>cv_err_data &lt;- as.data.frame(cv_err_mat)
+<pre class="r"><code># Save the matrix to the Output Results folder
+cv_err_data &lt;- as.data.frame(cv_err_mat)
 write.csv(cv_err_data, &quot;../Output/Results/cv_err_data.csv&quot;)
+
 colnames(cv_err_data) &lt;- c(&quot;Fold2&quot;, &quot;Fold5&quot;, &quot;Fold8&quot;)
+# Drew the boxplots
 cv_err_visual &lt;- ggplot(data = cv_err_data) + 
   geom_boxplot(aes(x = &quot;k = 2&quot;, y = Fold2)) +
   geom_boxplot(aes(x = &quot;k = 5&quot;, y = Fold5)) +
@@ -413,14 +421,17 @@ cv_err_visual &lt;- ggplot(data = cv_err_data) +
        y = &quot;CV Estimated MSE &quot;) +
   theme(plot.title =
         element_text(hjust = 0.5))
+# Save the boxplots as a PDF file in the Output Figures folder
 ggsave(&quot;cv_err_visual.pdf&quot;, plot = cv_err_visual, path = &quot;../Output/Figures/&quot;, 
        width = 9, height = 5)</code></pre>
-<pre class="r"><code>mean_err_vec &lt;- colMeans(cv_err_mat)
+<pre class="r"><code># Calculate the mean and the sd and build the table
+mean_err_vec &lt;- colMeans(cv_err_mat)
 sd_err_vec &lt;- vector()
 for (i in 1:3) {
   sd_err_vec[i] &lt;- sd(cv_err_mat[, i])
 }
 cv_mean_sd &lt;- cbind.data.frame(mean_err_vec, sd_err_vec)
+# Save the table as a RDS file in the Output Results folder
 saveRDS(cv_mean_sd, file = &quot;../Output/Results/cv_stat_data.rds&quot;)</code></pre>
 </div>
 

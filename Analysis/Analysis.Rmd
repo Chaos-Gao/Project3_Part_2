@@ -8,26 +8,34 @@ output: html_document
 ## my_rf_cv Analysis
 
 ```{r}
+# Load the package for Analysis
 library(tidyverse)
 library(randomForest)
+# Source the my_rf_cv code from the code folder
 source("../Code/my_rf_cv.R")
+# Load the my_penguins data from the data 
 my_penguins <- read.csv("../Data/my_penguins.csv")
 ```
 
 ```{r}
 fold_vec <- c(2, 5, 8)
 cv_err_mat <- matrix(nrow = 30, ncol = length(fold_vec))
+# Do the CV test with k = 2, 5, 8, and for each k, run 30 times
 for (i in 1:length(fold_vec)) {
   for (j in 1:30) {
+    # Store the MSE to the matrix
     cv_err_mat[j, i] <- my_rf_cv(fold_vec[i])
   }
 }
 ```
 
 ```{r, fig.width=5}
+# Save the matrix to the Output Results folder
 cv_err_data <- as.data.frame(cv_err_mat)
 write.csv(cv_err_data, "../Output/Results/cv_err_data.csv")
+
 colnames(cv_err_data) <- c("Fold2", "Fold5", "Fold8")
+# Drew the boxplots
 cv_err_visual <- ggplot(data = cv_err_data) + 
   geom_boxplot(aes(x = "k = 2", y = Fold2)) +
   geom_boxplot(aes(x = "k = 5", y = Fold5)) +
@@ -38,17 +46,20 @@ cv_err_visual <- ggplot(data = cv_err_data) +
        y = "CV Estimated MSE ") +
   theme(plot.title =
         element_text(hjust = 0.5))
+# Save the boxplots as a PDF file in the Output Figures folder
 ggsave("cv_err_visual.pdf", plot = cv_err_visual, path = "../Output/Figures/", 
        width = 9, height = 5)
 ```
 
 ```{r}
+# Calculate the mean and the sd and build the table
 mean_err_vec <- colMeans(cv_err_mat)
 sd_err_vec <- vector()
 for (i in 1:3) {
   sd_err_vec[i] <- sd(cv_err_mat[, i])
 }
 cv_mean_sd <- cbind.data.frame(mean_err_vec, sd_err_vec)
+# Save the table as a RDS file in the Output Results folder
 saveRDS(cv_mean_sd, file = "../Output/Results/cv_stat_data.rds")
 ```
 
